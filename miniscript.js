@@ -53,7 +53,7 @@
 
 const miniscript=function(){
     return {
-        version:0.12,
+        version:0.13,
         data:[],
         beep:function(){
             //Buzzer (Bip)
@@ -194,6 +194,19 @@ const miniscript=function(){
             }else{
                 this.put(0x14);
             }
+            return this;
+        },
+
+
+        /**
+         * In order to delay the display, we just spit 00 data.
+         * consequently, delay depend on bandwidth.
+         * hacky but worky
+         * @param  {[type]} n [description]
+         * @return {[type]}   [description]
+         */
+        delay:function(n){
+            for(let i=0;i<n;i++)this.put(0x00);
             return this;
         },
 
@@ -347,7 +360,43 @@ const miniscript=function(){
             // Add a Ascii string
             // I should make sure its lmited to printables
             for(let i in str){
-                //this.data.push(str.charCodeAt(i));
+                //special chars: Dédé à où relève Français
+                //-> add 0x19
+                switch(str[i]){
+
+                    case 'ç':
+                        this.put([0x19,75,99]);//c
+                        continue;
+
+
+                    case 'é':
+                        this.put([0x19,66,101]);
+                        continue;
+
+
+                    case 'è':
+                        this.put([0x19,65,101]);
+                        continue;
+
+                    case 'ê':
+                        this.put([0x19,67,101]);//e
+                        continue;
+
+                    case 'ù':
+                        this.put([0x19,65,117]);
+                        continue;
+
+
+                    case 'à':
+                        this.put([0x19,65,97]);
+                        continue;
+
+                    case '’'://replace with '
+                        this.put(39);continue;
+                        break;
+
+                }
+
                 this.put(str.charCodeAt(i));
             }
             return this;
