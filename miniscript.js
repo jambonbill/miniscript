@@ -51,12 +51,9 @@
 
  */
 
-//a bunch of chainable methods for easy minitel scripting
-// https://www.goto10.fr/minitel/videotex/
 const miniscript=function(){
-    console.log("miniscript v0.11");
     return {
-        str:'',
+        version:0.12,
         data:[],
         beep:function(){
             //Buzzer (Bip)
@@ -79,6 +76,11 @@ const miniscript=function(){
 
         },
 
+        /**
+         * Enable blinking
+         * @param  bool [description]
+         * @return self
+         */
         blink:function(b){
             //this.put(0x48);
             this.put(0x1B);
@@ -92,16 +94,17 @@ const miniscript=function(){
             */
             return this;
         },
-        /*
-        blinkOff:function(){
-            return this;
-        },
-        */
 
+
+        /**
+         * Clear Minitel screen
+         * @return self
+         */
         clearScreen:function(){
             this.put(0x0C);
             return this;
         },
+
 
         clearScreenStart:function(){
             //
@@ -113,37 +116,61 @@ const miniscript=function(){
             return this;
         },
 
+
+        /**
+         * Clear Current Line (at cursor position)
+         * @return {[type]} [description]
+         */
         clearLine:function(){
             //
             return this;
         },
 
+        /**
+         * Clear end of line (at cursor position)
+         * @return {[type]} [description]
+         */
         clearEol:function(){
             //
             return this;
         },
+
 
         nl:function(){//Retour chariot (colonne 1).
             this.put(0x0D);
             return this;
         },
 
+
+        /**
+         * Move cursor down, and at the begining of line
+         * @return self
+         */
         br:function(){//<br />
             this.put([0x0A,0x0D]);
             //this.put(0x13);
             return this;
         },
 
+
+
         clearStatus:function(){
             this.put(0x17);
             return this;
         },
+
 
         clearEol:function(){
             this.put(0x17);
             return this;
         },
 
+
+        /**
+         * Set the current color
+         * @param  color as a string
+         * @return self
+         */
         color:function(n){
             let color=0x47;
             switch(n){
@@ -155,18 +182,11 @@ const miniscript=function(){
                 case "cyan":color=0x46;break;
                 case "white":color=0x47;break;
             }
-            //black ->0x40
-            //red ->0x41
-            //green ->0x42
-            //yellow ->0x43
-            //blue ->0x44
-            //pink ->0x45
-            //cyan ->0x46
-            //white ->0x47
             this.data.push(0x1B);//set FG color
             this.data.push(color);//colorindex
             return this;
         },
+
 
         cursor:function(b){//curson ON
             if(b==true){
@@ -176,21 +196,26 @@ const miniscript=function(){
             }
             return this;
         },
-        /*
-        delay:function(ticks){
-            return this;
-        },
-        */
+
+
+
         gfx:function(){//switch to gfx mode
             this.put(0x0E);//Mode semi-graphique
             //this.put(gfxdata);
             return this;
         },
+
+
+        /**
+         * Bring cursor home (1ere ligne, 1ere colonne)
+         * @return this
+         */
         home:function(){
-            //Home (1ere ligne, 1ere colonne).
             this.put(0x1E);
             return this;
         },
+
+
         invert:function(b){
             if(b===false){
                 this.put([0x1B,0x5C]);
@@ -200,26 +225,50 @@ const miniscript=function(){
             return this;
         },
 
-        locate:function(x,y){//move cursor to given location
+
+        /**
+         * move cursor to given location
+         * @param  int x [column]
+         * @param  int y [row]
+         * @return self
+         */
+        locate:function(x,y){//
             this.data.push(0x1F);//move to
             this.data.push(0x40+y%25);//y first
             this.data.push(0x40+x%40);//x
             return this;
         },
+
+
+        /**
+         * Move cursor left
+         * @return self
+         */
         left:function(){
-            //Curseur gauche
             this.put(0x08);
             return this;
         },
+
+
+        /**
+         * Move cursor up
+         * @return self
+         */
         up:function(){
-            //Curseur haut
             this.put(0x0B);
             return this;
         },
+
+        /**
+         * Move cursor down
+         * @return self
+         */
         down:function(){
             this.put(0x0A);
             return this;
         },
+
+
         put:function(b){
             if(typeof b=="object"){
                 //todo
@@ -231,33 +280,69 @@ const miniscript=function(){
             }
             return this;
         },
+
         repeat:function(n){//Repetition du dernier caractere: n+64. Maximum: 64 fois.!
             this.put([0x12,n%64]);
             return this;
         },
+
+
+        /**
+         * Move cursor right
+         * @return self
+         */
         right:function(){
             //Curseur droit (TAB).
             this.put(0x09)
             return this;
         },
+
+
+        /**
+         * Set normal size
+         * @return self
+         */
         sizeNormal:function(){
             this.put([0x1B,0x4C]);
             return this;
         },
+
+
+        /**
+         * Set double height
+         * @return self
+         */
         sizeDoubleHeight:function(){
             this.put([0x1B,0x4D]);
             return this;
         },
+
+
+        /**
+         * Set double width
+         * @return self
+         */
         sizeDoubleWidth:function(){
             this.put([0x1B,0x4E]);
             return this;
         },
 
+
+        /**
+         * Set double size
+         * @return self
+         */
         sizeDouble:function(){
             this.put([0x1B,0x4F]);
             return this;
         },
 
+
+        /**
+         * Add ASCII String
+         * @param  string str [description]
+         * @return self
+         */
         write:function(str){
             // Add a Ascii string
             // I should make sure its lmited to printables
