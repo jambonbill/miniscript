@@ -53,12 +53,13 @@
 
 const miniscript=function(){
     return {
-        version:0.13,
+        version:0.14,
         data:[],
         beep:function(){
             //Buzzer (Bip)
             this.put(0x07);
         },
+
         bgColor:function(n){
             let color=0x57;
             switch(n){
@@ -152,6 +153,24 @@ const miniscript=function(){
             return this;
         },
 
+        box:function(x,y,width,height,color)
+        {
+            //TODO : Locate(x,y)
+            //Draw space with color, repeat w
+            //Repeat y
+            //this.put([0x1F, 0x40+y%25, 0x40+x%40);//Locate
+
+            for(let row=y;row<y+height;row++){
+                this.put([
+                    0x1f, 0x40 + row, 0x40 + x, //Locate
+                    0x0e, 0x1b, 0x50 + color, //Fill Symbol
+                    0x20, 0x12, 0x40 + width - 1 //Repeat
+                ]);
+            }
+
+            return this;
+        },
+
 
 
         clearStatus:function(){
@@ -212,11 +231,19 @@ const miniscript=function(){
 
 
 
-        gfx:function(){//switch to gfx mode
-            this.put(0x0E);//Mode semi-graphique
-            //this.put(gfxdata);
+
+        gfx:function(b){//switch to gfx mode
+            if(b){
+                this.put(0x0E);//Mode semi-graphique (mosaic)
+            }else{
+                this.put(0x0F);//normal Text mode
+            }
+            //"content-g0": [0x0f],
+            //"content-g1": [0x0e],
             return this;
         },
+
+
 
 
         /**
@@ -245,10 +272,23 @@ const miniscript=function(){
          * @param  int y [row]
          * @return self
          */
+        /*
         locate:function(x,y){//
             this.data.push(0x1F);//move to
             this.data.push(0x40+y%25);//y first
-            this.data.push(0x40+x%40);//x
+            this.data.push(0x40+(x+1)%40);//x
+            return this;
+        },
+        */
+
+        /**
+         * move cursor to given location
+         * @param  int x [column]
+         * @param  int y [row]
+         * @return self
+         */
+        goto:function(x,y){
+            this.put([0x1F,0x40+y%25,0x40+(x+1)%40]);//x
             return this;
         },
 
@@ -272,6 +312,7 @@ const miniscript=function(){
             return this;
         },
 
+
         /**
          * Move cursor down
          * @return self
@@ -282,6 +323,12 @@ const miniscript=function(){
         },
 
 
+
+        /**
+         * Add message to queue
+         * @param  {[type]} b [description]
+         * @return {[type]}   [description]
+         */
         put:function(b){
             if(typeof b=="object"){
                 //todo
@@ -294,8 +341,14 @@ const miniscript=function(){
             return this;
         },
 
+
+        /**
+         * TODO
+         * @param  {[type]} n [description]
+         * @return {[type]}   [description]
+         */
         repeat:function(n){//Repetition du dernier caractere: n+64. Maximum: 64 fois.!
-            this.put([0x12,n%64]);
+            this.put([0x12, n%64]);
             return this;
         },
 
@@ -401,6 +454,11 @@ const miniscript=function(){
             }
             return this;
         },
+
+        /**
+         * Return base64 encoded data
+         * @return {[type]} [description]
+         */
         btoa:function(){
             return btoa(this.data);
         }
