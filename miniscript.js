@@ -1,6 +1,7 @@
 "use strict"
 /**
- * miniscript is a library that help create minitel page using words.
+ * https://github.com/jambonbill/miniscript
+ * miniscript is a library that assist minitel page creation, using words.
  * (as in a language)
  * @file miniscript.js
  * @author Jambonbill
